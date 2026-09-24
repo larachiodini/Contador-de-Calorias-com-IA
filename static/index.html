@@ -468,40 +468,14 @@ document.getElementById('inputFoto').addEventListener('change', async (e) => {
   const formData = new FormData();
   formData.append('foto', arquivo);
   try {
-  const res = await fetch('/api/analisar-refeicao', {
-    method: 'POST',
-    body: formData
-  });
-
-  const dados = await res.json();
-
-  if (res.status === 429) {
-    throw new Error('LIMITE_ATINGIDO');
-  }
-
-  if (!res.ok) {
-    throw new Error('ERRO_ANALISE');
-  }
-
-  renderConfirmacao(dados.analise);
-
-} catch (erro) {
-
-  if (erro.message === 'LIMITE_ATINGIDO') {
-    document.getElementById('resultado').innerHTML = `
-      <p class="erro">
-        Você atingiu o limite de 3 análises de IA por dia.
-        Tente novamente amanhã.
-      </p>
-    `;
-  } else {
-    document.getElementById('resultado').innerHTML = `
-      <p class="erro">
-        Não consegui analisar a foto. Tente novamente com uma foto mais clara.
-      </p>
-    `;
-  }
-
+    const res = await fetch('/api/analisar-refeicao', {method:'POST', body:formData});
+    const dados = await res.json();
+    if (!res.ok) throw new Error();
+    renderConfirmacao(dados.analise);
+  } catch {
+    document.getElementById('resultado').innerHTML = '<p class="erro">Não consegui analisar a foto. Tente novamente com uma foto mais clara.</p>';
+  } finally { setStatus(false); }
+});
 } finally {
   setStatus(false);
 }
