@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dieta do Dia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EEF0E4;
+    --paper: #FFFFFF;
+    --ink: #24312A;
+    --ink-soft: #5C6B60;
+    --line: #DCE1D3;
+    --accent: #2F6B5E;
+    --accent-soft: #E4EDE7;
+    --protein: #5B7C99;
+    --carbs: #C98F3E;
+    --fat: #B5583F;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+  }
+
+  main{
+  width:100%;
+  max-width:1400px;
+  margin:0 auto;
+  padding:48px 40px 80px;
+}
+
+  .titulo {
+    font-family: 'Inter', sans-serif;
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+
+  .subtitulo {
+    color: var(--ink-soft);
+    margin: 0 0 36px;
+    font-size: 0.95rem;
+  }
+
+  .hero {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+
+  .anel-wrap { position: relative; width: 116px; height: 116px; flex-shrink: 0; }
+  .anel-wrap svg { transform: rotate(-90deg); }
+  .anel-fundo { fill: none; stroke: var(--accent-soft); stroke-width: 10; }
+  .anel-progresso { fill: none; stroke: var(--accent); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+  .anel-numero {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .anel-numero .num { font-family: 'Inter', sans-serif; font-size: 1.5rem; font-weight: 600; }
+  .anel-numero .rotulo { font-size: 0.7rem; color: var(--ink-soft); }
+
+  .macros { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .macro-linha { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; }
+  .macro-nome { width: 78px; color: var(--ink-soft); }
+  .macro-barra { flex: 1; height: 6px; background: var(--accent-soft); border-radius: 4px; overflow: hidden; }
+  .macro-barra > span { display: block; height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+  .macro-valor { width: 68px; text-align: right; color: var(--ink-soft); }
+
+  .cartao {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .cartao h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+
+ .zona-upload{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:140px;
+    width:100%;
+    border:1.5px dashed var(--line);
+    border-radius:12px;
+    padding:20px;
+    text-align:center;
+    cursor:pointer;
+    transition:.2s;
+}
+  .zona-upload:hover, .zona-upload.arrastando { border-color: var(--accent); background: var(--accent-soft); }
+  .zona-upload p { margin: 0; color: var(--ink-soft); font-size: 0.9rem; }
+  .zona-upload input { display: none; }
+
+  .preview { max-width: 100%; border-radius: 10px; margin-top: 14px; display: none; }
+
+  .status-analise {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .aro {
+    width: 16px; height: 16px;
+    border: 2px solid var(--accent-soft);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: girar 0.7s linear infinite;
+  }
+  @keyframes girar { to { transform: rotate(360deg); } }
+
+  .resultado { margin-top: 16px; font-size: 0.9rem; }
+  .resultado .item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .resultado .item:last-child { border-bottom: none; }
+  .obs { color: var(--ink-soft); font-size: 0.82rem; margin-top: 10px; }
+
+
+  .botoes { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+  .btn-principal, .btn-secundario { font-family: 'Inter', sans-serif; cursor: pointer; padding: 11px 18px; border-radius: 10px; font-size: .88rem; }
+  .btn-principal { border: 0; background: var(--accent); color: white; }
+  .btn-secundario { border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
+  .btn-principal:hover { opacity: .9; }
+  .btn-secundario:hover { background: var(--accent-soft); }
+  .editor { display: flex; flex-direction: column; gap: 10px; }
+  .editor-item { display: grid; grid-template-columns: 1fr 95px 34px; gap: 8px; align-items: center; }
+  .editor-item input { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; font: inherit; background: white; color: var(--ink); }
+  .cabecalho-editor { display: grid; grid-template-columns: 1fr 95px 34px; gap: 8px; color: var(--ink-soft); font-size: .75rem; }
+  .remover { height: 38px; border: 1px solid var(--line); border-radius: 8px; background: white; color: var(--ink); font-size: 18px; cursor: pointer; }
+  .resumo-confirmacao { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 14px; }
+  .resumo-confirmacao strong { font-size: 1.05rem; }
+  .mini-macros { color: var(--ink-soft); font-size: .82rem; margin-top: 3px; }
+  .erro { color: #9b3f32; background: #f8e8e4; padding: 10px; border-radius: 8px; font-size: .85rem; }
+  @media (max-width: 520px) { .editor-item, .cabecalho-editor { grid-template-columns: 1fr 82px 34px; } }
+
+  .agua-botoes { display: flex; gap: 10px; flex-wrap: wrap; }
+  .agua-botoes button {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.88rem;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .agua-botoes button:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+  .lista-refeicoes { display: flex; flex-direction: column; gap: 2px; }
+  .refeicao-linha {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 0.9rem;
+  }
+  .refeicao-linha:last-child { border-bottom: none; }
+  .refeicao-linha .hora { color: var(--ink-soft); font-size: 0.78rem; width: 56px; }
+  .refeicao-linha .nome { flex: 1; }
+  .refeicao-linha .kcal { color: var(--ink-soft); }
+  .refeicao-excluir { margin-left: 10px; border: 1px solid var(--line); background: var(--paper); color: var(--ink-soft); border-radius: 7px; width: 30px; height: 30px; cursor: pointer; font-size: 16px; line-height: 1; }
+  .refeicao-excluir:hover { background: #F8E8E4; border-color: #D9AAA0; color: #9B3F32; }
+
+  .vazio { color: var(--ink-soft); font-size: 0.88rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1 class="titulo">Dieta do Dia</h1>
+  <p class="subtitulo">Tire fotos das suas refeições e acompanhe em tempo real sua dieta!</p>
+
+  <section class="hero">
+    <div class="anel-wrap">
+      <svg width="116" height="116" viewBox="0 0 116 116">
+        <circle class="anel-fundo" cx="58" cy="58" r="50"></circle>
+        <circle id="anelProgresso" class="anel-progresso" cx="58" cy="58" r="50"
+                stroke-dasharray="314" stroke-dashoffset="314"></circle>
+      </svg>
+      <div class="anel-numero">
+        <span class="num" id="kcalAtual">0</span>
+        <span class="rotulo" id="kcalMeta">de 0 kcal</span>
+      </div>
+    </div>
+    <div class="macros">
+      <div class="macro-linha">
+        <span class="macro-nome">Proteína</span>
+        <span class="macro-barra"><span id="barraProteina" style="width:0%; background: var(--protein);"></span></span>
+        <span class="macro-valor" id="valorProteina">0 / 0g</span>
+      </div>
+      <div class="macro-linha">
+        <span class="macro-nome">Carboidrato</span>
+        <span class="macro-barra"><span id="barraCarboidrato" style="width:0%; background: var(--carbs);"></span></span>
+        <span class="macro-valor" id="valorCarboidrato">0 / 0g</span>
+      </div>
+      <div class="macro-linha">
+        <span class="macro-nome">Gordura</span>
+        <span class="macro-barra"><span id="barraGordura" style="width:0%; background: var(--fat);"></span></span>
+        <span class="macro-valor" id="valorGordura">0 / 0g</span>
+      </div>
+      <div class="macro-linha">
+        <span class="macro-nome">Água</span>
+        <span class="macro-barra"><span id="barraAgua" style="width:0%; background: var(--accent);"></span></span>
+        <span class="macro-valor" id="valorAgua">0 / 0ml</span>
+      </div>
+    </div>
+  </section>
+
+ <div class="acoes-grid">
+  
+ 
+  <section class="cartao">
+    <h2>Registrar refeição</h2>
+    <label class="zona-upload" id="zonaUpload">
+      <p>Toque para escolher uma foto</p>
+      <input type="file" id="inputFoto" accept="image/*" capture="environment">
+    </label>
+    <img class="preview" id="preview" alt="">
+    <div class="status-analise" id="statusAnalise"><span class="aro"></span><span id="textoStatus">Analisando a foto…</span></div>
+    <div class="resultado" id="resultado"></div>
+  </section>
+
+  <section class="cartao">
+    <h2>Água</h2>
+    <div class="agua-botoes">
+      <button data-ml="250">+ 200 ml</button>
+      <button data-ml="500">+ 500 ml</button>
+      <button data-ml="750">+ 750 ml</button>
+    </div>
+  </section>
+</div>
+
+
+
+  <section class="cartao">
+    <h2>Hoje</h2>
+    <div class="lista-refeicoes" id="listaRefeicoes">
+      <p class="vazio">Nenhuma refeição registrada ainda.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+let metas = { calorias: 1650, proteina: 110, carboidrato: 200, gordura: 60, agua_ml: 3000 };
+
+async function carregarMetas() {
+  const res = await fetch('/api/metas');
+  metas = await res.json();
+}
+
+function atualizarPainel(totais) {
+  const pct = Math.min(totais.calorias / metas.calorias, 1);
+  const circunferencia = 314;
+  document.getElementById('anelProgresso').style.strokeDashoffset = circunferencia - (pct * circunferencia);
+  document.getElementById('kcalAtual').textContent = Math.round(totais.calorias);
+  document.getElementById('kcalMeta').textContent = `de ${Math.round(metas.calorias)} kcal`;
+
+  setBarra('Proteina', totais.proteina, metas.proteina, 'g');
+  setBarra('Carboidrato', totais.carboidrato, metas.carboidrato, 'g');
+  setBarra('Gordura', totais.gordura, metas.gordura, 'g');
+  setBarra('Agua', totais.agua_ml, metas.agua_ml, 'ml');
+
+  const lista = document.getElementById('listaRefeicoes');
+  if (!totais.refeicoes || totais.refeicoes.length === 0) {
+    lista.innerHTML = '<p class="vazio">Nenhuma refeição registrada ainda.</p>';
+  } else {
+    lista.innerHTML = totais.refeicoes.map(r => `
+      <div class="refeicao-linha">
+        <span class="hora">${(r.hora || '').slice(0,5)}</span>
+        <span class="nome">${escapeHtml(r.alimento)}</span>
+        <span class="kcal">${Math.round(r.calorias)} kcal</span>
+        <button class="refeicao-excluir" type="button" data-id="${r.id}" title="Excluir alimento">×</button>
+      </div>
+    `).join('');
+    lista.querySelectorAll('.refeicao-excluir').forEach(btn => {
+      btn.addEventListener('click', () => excluirRefeicao(Number(btn.dataset.id)));
+    });
+  }
+}
+
+async function excluirRefeicao(id) {
+  if (!window.confirm('Excluir este alimento do diário?')) return;
+  try {
+    const res = await fetch('/api/excluir-refeicao', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({id})
+    });
+    const dados = await res.json();
+    if (!res.ok || !dados.ok) throw new Error(dados.erro || 'Falha ao excluir');
+    atualizarPainel(dados.totais);
+  } catch {
+    alert('Não consegui excluir o alimento. Tente novamente.');
+  }
+}
+
+function setBarra(nome, valor, meta, unidade) {
+  const pct = Math.min((valor / meta) * 100, 100);
+  document.getElementById(`barra${nome}`).style.width = pct + '%';
+  document.getElementById(`valor${nome}`).textContent = `${Math.round(valor)} / ${Math.round(meta)}${unidade}`;
+}
+
+async function carregarResumo() {
+  const res = await fetch('/api/resumo');
+  const totais = await res.json();
+  atualizarPainel(totais);
+}
+
+let alimentosAtuais = [];
+
+function escapeHtml(valor) {
+  return String(valor ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+}
+
+function setStatus(visivel, texto) {
+  const status = document.getElementById('statusAnalise');
+  status.style.display = visivel ? 'flex' : 'none';
+  if (texto) document.getElementById('textoStatus').textContent = texto;
+}
+
+function renderConfirmacao(analise) {
+  alimentosAtuais = (analise.alimentos || []).map(a => ({ ...a }));
+  const resultadoEl = document.getElementById('resultado');
+
+  if (!alimentosAtuais.length) {
+    resultadoEl.innerHTML = `<p class="erro">${escapeHtml(analise.observacao || 'Não consegui identificar alimentos nessa foto.')}</p>`;
+    return;
+  }
+
+  resultadoEl.innerHTML = `
+    <p style="margin:0 0 12px"><strong>Confira se identifiquei tudo certo:</strong></p>
+    <div class="editor">
+      <div class="cabecalho-editor"><span>Alimento</span><span>Quantidade (g)</span><span></span></div>
+      <div id="editorAlimentos"></div>
+    </div>
+    <button class="btn-secundario" id="adicionarAlimento" type="button">+ Adicionar alimento</button>
+    <div class="resumo-confirmacao">
+      <strong>Total: <span id="totalKcal">0</span> kcal</strong>
+      <div class="mini-macros" id="totalMacros"></div>
+    </div>
+    ${analise.observacao ? `<p class="obs">${escapeHtml(analise.observacao)}</p>` : ''}
+    <div class="botoes">
+      <button class="btn-principal" id="confirmarRefeicao" type="button">✓ Está correto, registrar</button>
+      <button class="btn-secundario" id="recalcular" type="button">↻ Recalcular valores</button>
+    </div>
+  `;
+
+  renderEditor();
+  atualizarResumoEditor();
+
+  document.getElementById('adicionarAlimento').onclick = () => {
+    alimentosAtuais.push({ nome: '', gramas: 0, calorias: 0, proteina: 0, carboidrato: 0, gordura: 0 });
+    renderEditor();
+    atualizarResumoEditor();
+  };
+  document.getElementById('confirmarRefeicao').onclick = confirmarRefeicao;
+  document.getElementById('recalcular').onclick = recalcular;
+}
+
+function renderEditor() {
+  const container = document.getElementById('editorAlimentos');
+  if (!container) return;
+  container.innerHTML = alimentosAtuais.map((a, i) => `
+    <div class="editor-item">
+      <input class="nome-alimento" data-i="${i}" value="${escapeHtml(a.nome || '')}" placeholder="Ex.: arroz">
+      <input class="gramas-alimento" data-i="${i}" type="number" min="0" step="1" value="${Number(a.gramas || 0)}" placeholder="g">
+      <button class="remover" data-i="${i}" title="Remover" type="button">×</button>
+    </div>
+  `).join('');
+
+  container.querySelectorAll('.nome-alimento').forEach(input => {
+    input.addEventListener('input', e => {
+      alimentosAtuais[Number(e.target.dataset.i)].nome = e.target.value;
+    });
+  });
+  container.querySelectorAll('.gramas-alimento').forEach(input => {
+    input.addEventListener('input', e => {
+      const i = Number(e.target.dataset.i);
+      alimentosAtuais[i].gramas = Number(e.target.value) || 0;
+    });
+  });
+  container.querySelectorAll('.remover').forEach(btn => {
+    btn.onclick = () => {
+      alimentosAtuais.splice(Number(btn.dataset.i), 1);
+      renderEditor();
+      atualizarResumoEditor();
+    };
+  });
+}
+
+function atualizarResumoEditor() {
+  const total = alimentosAtuais.reduce((s, a) => ({
+    calorias: s.calorias + Number(a.calorias || 0),
+    proteina: s.proteina + Number(a.proteina || 0),
+    carboidrato: s.carboidrato + Number(a.carboidrato || 0),
+    gordura: s.gordura + Number(a.gordura || 0)
+  }), {calorias:0, proteina:0, carboidrato:0, gordura:0});
+  const kcal = document.getElementById('totalKcal');
+  const macros = document.getElementById('totalMacros');
+  if (kcal) kcal.textContent = Math.round(total.calorias);
+  if (macros) macros.textContent = `${Math.round(total.proteina)} g proteína • ${Math.round(total.carboidrato)} g carboidrato • ${Math.round(total.gordura)} g gordura`;
+}
+
+async function recalcular() {
+  const validos = alimentosAtuais.filter(a => String(a.nome || '').trim() && Number(a.gramas) > 0);
+  if (!validos.length) { alert('Informe pelo menos um alimento e a quantidade em gramas.'); return; }
+  setStatus(true, 'Recalculando os valores…');
+  try {
+    const res = await fetch('/api/recalcular-refeicao', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({alimentos: validos.map(a => ({nome:a.nome, gramas:Number(a.gramas)}))})
+    });
+    const dados = await res.json();
+    if (!res.ok || !dados.analise) throw new Error();
+    renderConfirmacao(dados.analise);
+  } catch {
+    document.getElementById('resultado').insertAdjacentHTML('afterbegin', '<p class="erro">Não consegui recalcular agora. Tente novamente.</p>');
+  } finally { setStatus(false); }
+}
+
+async function confirmarRefeicao() {
+  const validos = alimentosAtuais.filter(a => String(a.nome || '').trim() && Number(a.gramas) > 0);
+  if (!validos.length) { alert('Informe pelo menos um alimento e a quantidade em gramas.'); return; }
+  setStatus(true, 'Registrando refeição…');
+  try {
+    const res = await fetch('/api/confirmar-refeicao', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({alimentos: validos})
+    });
+    const dados = await res.json();
+    if (!res.ok || !dados.ok) throw new Error();
+    document.getElementById('resultado').innerHTML = '<p style="margin:16px 0 0"><strong>✓ Refeição registrada!</strong></p>';
+    const preview = document.getElementById('preview');
+    preview.src = '';
+    preview.style.display = 'none';
+    document.getElementById('inputFoto').value = '';
+    atualizarPainel(dados.totais);
+  } catch {
+    document.getElementById('resultado').insertAdjacentHTML('afterbegin', '<p class="erro">Não consegui registrar a refeição. Tente novamente.</p>');
+  } finally { setStatus(false); }
+}
+
+document.getElementById('inputFoto').addEventListener('change', async (e) => {
+  const arquivo = e.target.files[0];
+  if (!arquivo) return;
+  const preview = document.getElementById('preview');
+  preview.src = URL.createObjectURL(arquivo);
+  preview.style.display = 'block';
+  document.getElementById('resultado').innerHTML = '';
+  setStatus(true, 'Analisando a foto…');
+  const formData = new FormData();
+  formData.append('foto', arquivo);
+  try {
+    const res = await fetch('/api/analisar-refeicao', {method:'POST', body:formData});
+    const dados = await res.json();
+    if (!res.ok) throw new Error();
+    renderConfirmacao(dados.analise);
+  } catch {
+    document.getElementById('resultado').innerHTML = '<p class="erro">Não consegui analisar a foto. Tente novamente com uma foto mais clara.</p>';
+  } finally { setStatus(false); }
+});
+
+document.querySelectorAll('.agua-botoes button').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const ml = parseFloat(btn.dataset.ml);
+    const res = await fetch('/api/agua', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quantidade_ml: ml }),
+    });
+    const dados = await res.json();
+    atualizarPainel(dados.totais);
+  });
+});
+
+(async () => {
+  await carregarMetas();
+  await carregarResumo();
+})();
+</script>
+</body>
+</html>
